@@ -2,14 +2,12 @@ version: "3.6"
 
 services:
   backend:
-    image: recruitment_backend:0.1
-    build: ./electricity-backend
+    image: zawadzkib/recruitment_backend:0.1
     ports:
       - 8081:8081
 
   frontend:
-    image: recruitment_frontend:0.1
-    build: ./electricity-front
+    image: zawadzkib/recruitment_frontend:0.1
     environment:
       - env=docker
     ports:
