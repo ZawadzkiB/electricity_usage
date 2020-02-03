@@ -14,7 +14,7 @@
     <v-data-table
       v-if="!appState.nav.isLoading"
       :headers="fields2"
-      :items="getHistoryDataFromState.consumptionHistory"
+      :items="getHistoryDataFromState"
       :sort-by="['timeStamp']"
       :sort-desc="[true, false]"
       :search="search"

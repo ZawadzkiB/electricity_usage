@@ -56,10 +56,11 @@ class ReportCreatorTest {
     electricityUsage.setUsages(usages);
 
     reportRequest = new ReportRequest()
-            .setAggregationType(AggregationType.MONTHLY)
-            .setStartDate(LocalDate.of(2018, 1, 1))
-            .setEndDate(LocalDate.of(2018, 3, 31))
             .setPrice(BigDecimal.valueOf(0.55));
+
+    reportCreator.setDateFilters(
+            LocalDate.of(2018, 1, 1).atStartOfDay(),
+            LocalDate.of(2019, 3, 31).atStartOfDay());
   }
 
   @Test
@@ -70,29 +71,16 @@ class ReportCreatorTest {
             .setAccountingPoint("54EA-5481353548-U")
             .setDocumentDateTime(LocalDate.of(2020, 1, 20).atStartOfDay())
             .setDocumentIdentification("ID-123456")
-            .setAggregationType(AggregationType.MONTHLY)
             .setMeasurementUnit("kWh"), "consumptionHistory");
   }
 
   @Test
-  void createMonthlyReport() {
+  void createReport() {
     Mockito.when(client.getData()).thenReturn(electricityUsage);
     Report report = reportCreator.createReport(reportRequest);
-    assertThat(report.getConsumptionHistory().size()).isEqualTo(3);
-  }
-
-  @Test
-  void createWeeklyReport() {
-    Mockito.when(client.getData()).thenReturn(electricityUsage);
-    Report report = reportCreator.createReport(reportRequest.setAggregationType(AggregationType.WEEKLY));
-    assertThat(report.getConsumptionHistory().size()).isEqualTo(6);
-  }
-
-  @Test
-  void createDailyReport() {
-    Mockito.when(client.getData()).thenReturn(electricityUsage);
-    Report report = reportCreator.createReport(reportRequest.setAggregationType(AggregationType.DAILY));
-    assertThat(report.getConsumptionHistory().size()).isEqualTo(9);
+    assertThat(report.getConsumptionHistory().get(AggregationType.MONTHLY).size()).isEqualTo(4);
+    assertThat(report.getConsumptionHistory().get(AggregationType.WEEKLY).size()).isEqualTo(7);
+    assertThat(report.getConsumptionHistory().get(AggregationType.DAILY).size()).isEqualTo(9);
   }
 
   @Test

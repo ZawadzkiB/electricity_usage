@@ -12,13 +12,14 @@ import java.util.Optional;
 @Component
 public class ElectricityUsageProvider implements com.example.electricity.provider.ElectricityUsageProvider {
 
+  public static final String ELECTRIC_USAGE_CACHE_NAME = "electricUsageData";
   private ElectricityConsumptionHistoryClient client;
 
   public ElectricityUsageProvider(ElectricityConsumptionHistoryClient client) {
     this.client = client;
   }
 
-  @Cacheable(cacheNames = "energyReport")
+  @Cacheable(cacheNames = ELECTRIC_USAGE_CACHE_NAME)
   @Override
   public ElectricityUsageData getData() {
     EnergyReport energyReport = Optional.ofNullable(client.getFullHistory().getBody()).orElseGet(EnergyReport::new);

@@ -19,13 +19,18 @@ export interface RootState {
   version: string;
 }
 
+export interface AggregatedConsumptions {
+  DAILY: Array<Consumption>;
+  WEEKLY: Array<Consumption>;
+  MONTHLY: Array<Consumption>;
+}
+
 export interface HistoryData {
   documentIdentification: string;
   documentDateTime: string;
   accountingPoint: string;
   measurementUnit: string;
-  consumptionHistory: Array<Consumption>;
-  aggregationType: string;
+  consumptionHistory: AggregatedConsumptions;
 }
 
 export interface Consumption {

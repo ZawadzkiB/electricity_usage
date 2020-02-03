@@ -26,8 +26,11 @@ export const state: AppState = {
     documentDateTime: "2020-01-30T17:38:32",
     accountingPoint: "54EA-5481353548-U",
     measurementUnit: "kWh",
-    consumptionHistory: [],
-    aggregationType: "daily"
+    consumptionHistory: {
+      DAILY: [],
+      WEEKLY: [],
+      MONTHLY: []
+    }
   }
 };
 

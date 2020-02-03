@@ -1,19 +1,21 @@
 package com.example.electricity.report;
 
 import com.example.electricity.provider.ElectricityUsageProvider;
-import com.example.electricity.provider.model.ElectricityUsage;
 import com.example.electricity.provider.model.ElectricityUsageData;
 import com.example.electricity.report.aggregations.Aggregates;
 import com.example.electricity.report.aggregations.AggregationType;
 import com.example.electricity.report.aggregations.functions.AggregateFunction;
-import com.example.electricity.report.exceptions.AggregationNotFoundException;
 import com.example.electricity.report.model.Consumption;
 import com.example.electricity.report.model.Report;
 import com.example.electricity.report.model.ReportRequest;
+import com.google.common.annotations.VisibleForTesting;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +28,9 @@ public class ReportCreator {
   private final Set<Aggregates> aggregates;
   private final AggregateFunction aggregateFunction;
 
+  private LocalDateTime startDate;
+  private LocalDateTime endDate;
+
   public ReportCreator(ElectricityUsageProvider client,
                        Set<Aggregates> aggregates,
                        @Qualifier("sum") AggregateFunction aggregateFunction) {
@@ -34,22 +39,30 @@ public class ReportCreator {
     this.aggregateFunction = aggregateFunction;
   }
 
+  @VisibleForTesting
+  void setDateFilters(LocalDateTime startDate, LocalDateTime endDate) {
+    this.startDate = startDate;
+    this.endDate = endDate;
+  }
+
   public Report createReport(ReportRequest reportRequest) {
 
     ElectricityUsageData data = Optional.ofNullable(client.getData()).orElseGet(ElectricityUsageData::new);
 
-    return energyReportToReport(data)
-            .setAggregationType(reportRequest.getAggregationType())
-            .setConsumptionHistory(
+    EnumMap<AggregationType, List<Consumption>> consumptions = new EnumMap<>(AggregationType.class);
+    aggregates.forEach(agr ->
+            consumptions.put(agr.type(),
                     calculateCost(
-                            getAggregation(reportRequest.getAggregationType())
-                                    .aggregate(
-                                            filterHourConsumptions(
-                                                    data.getUsages(),
-                                                    reportRequest),
-                                            aggregateFunction),
-                            reportRequest)
-            );
+                            agr.aggregate(
+                                    data.getUsages().stream()
+                                            .filter(it -> it.getTimestamp().isAfter(Optional.ofNullable(startDate).orElse(LocalDate.now().minusYears(2).atStartOfDay().minusHours(1))))
+                                            .filter(it -> it.getTimestamp().isBefore(Optional.ofNullable(endDate).orElse(LocalDate.now().atStartOfDay().plusHours(25))))
+                                            .map(it -> new Consumption().setConsumption(it.getUsage()).setTimeStamp(it.getTimestamp()))
+                                            .collect(Collectors.toList()), aggregateFunction), reportRequest))
+    );
+
+    return energyReportToReport(data).setConsumptionHistory(consumptions);
+
   }
 
   private Report energyReportToReport(ElectricityUsageData data) {
@@ -60,26 +73,11 @@ public class ReportCreator {
             .setMeasurementUnit(data.getMeasurementUnit());
   }
 
-  private List<Consumption> filterHourConsumptions(List<ElectricityUsage> usages, ReportRequest reportRequest) {
-    return usages.stream()
-            .filter(usage -> usage.getTimestamp().isAfter(reportRequest.getStartDate().atStartOfDay().minusHours(1)))
-            .filter(usage -> usage.getTimestamp().isBefore(reportRequest.getEndDate().atStartOfDay().plusHours(24)))
-            .map(usage -> new Consumption()
-                    .setConsumption(usage.getUsage())
-                    .setTimeStamp(usage.getTimestamp()))
-            .collect(Collectors.toList());
-  }
 
   private List<Consumption> calculateCost(List<Consumption> consumptions, ReportRequest reportRequest) {
     return consumptions.stream()
             .map(consumption -> consumption.setCost(reportRequest.getPrice().multiply(BigDecimal.valueOf(consumption.getConsumption()))))
             .collect(Collectors.toList());
-  }
-
-
-  private Aggregates getAggregation(AggregationType aggregationType) {
-    return aggregates.stream().filter(it -> it.type().equals(aggregationType))
-            .findFirst().orElseThrow(AggregationNotFoundException::new);
   }
 
 }

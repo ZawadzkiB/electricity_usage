@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static com.example.electricity.provider.client.ElectricityUsageProvider.ELECTRIC_USAGE_CACHE_NAME;
 import static javax.management.timer.Timer.ONE_HOUR;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class ElectricityConsumptionHistoryJob {
     this.client = client;
   }
 
-  @CachePut(cacheNames = "energyReport")
+  @CachePut(cacheNames = ELECTRIC_USAGE_CACHE_NAME)
   public ElectricityUsageData updateCache() {
     log.info("Sending request for electricity usage data");
     ResponseEntity<EnergyReport> responseEntity = client.getFullHistory();

@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,8 @@ public class ElectricityConsumptionHistoryClient {
 
   ResponseEntity<EnergyReport> getFullHistory() {
 
-    LocalDate startDate = LocalDate.now().minusYears(2);
-    LocalDate endDate = LocalDate.now().minusDays(1);
+    LocalDate startDate = LocalDate.now(ZoneId.of("UTC+2")).minusYears(2);
+    LocalDate endDate = LocalDate.now(ZoneId.of("UTC+2")).minusDays(1);
     log.info("Get energy consumptions for: start {}, end {}", startDate, endDate);
     try {
       return restTemplate.getForEntity(url, EnergyReport.class,

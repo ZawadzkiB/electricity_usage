@@ -3,14 +3,14 @@ import { Line } from "vue-chartjs-typescript";
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import { Getter, State } from "vuex-class";
-import { AppState, HistoryData } from "@/store/store";
+import { AppState, Consumption, HistoryData } from "@/store/store";
 
 @Component({
   extends: Line
 })
 export default class Chart extends Vue {
   @State("historyData") appState?: AppState;
-  @Getter("getHistoryDataFromState") getHistoryDataFromState?: HistoryData;
+  @Getter("getHistoryDataFromState") getHistoryDataFromState?: any;
   chartData: any;
   options: object;
 
@@ -61,7 +61,7 @@ export default class Chart extends Vue {
 
   created() {
     this.$store.subscribe((mutation, state) => {
-      if (state.historyData.nav.view && mutation.type == "setHistoryData") {
+      if (state.historyData.nav.view && mutation.type == "chartUpdate") {
         this.createChart();
       }
     });
@@ -72,13 +72,13 @@ export default class Chart extends Vue {
   }
 
   createChart() {
-    this.chartData.labels =
-      this.getHistoryDataFromState &&
-      this.getHistoryDataFromState.consumptionHistory.map(c => c.timeStamp);
+    this.chartData.labels = this.getHistoryDataFromState.map(
+      (c: Consumption) => c.timeStamp
+    );
 
-    this.chartData.datasets[0].data =
-      this.getHistoryDataFromState &&
-      this.getHistoryDataFromState.consumptionHistory.map(c => c.consumption);
+    this.chartData.datasets[0].data = this.getHistoryDataFromState.map(
+      (c: Consumption) => c.consumption
+    );
 
     try {
       this.renderChart(this.chartData, this.options);

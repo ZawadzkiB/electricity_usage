@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.example.electricity.provider.client.ElectricityUsageProvider.ELECTRIC_USAGE_CACHE_NAME;
 import static com.example.electricity.report.ReportController.DATE_FORMAT;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -67,12 +68,12 @@ class ReportControllerTest {
 
   static Stream<Arguments> calculationData() {
     return Stream.of(
-            arguments(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 31),
-                    AggregationType.MONTHLY, BigDecimal.valueOf(1.5), 325.96, BigDecimal.valueOf(488.94), 1),
-            arguments(LocalDate.of(2020, 1, 6), LocalDate.of(2020, 1, 31),
-                    AggregationType.WEEKLY, BigDecimal.valueOf(1.5), 121.59, BigDecimal.valueOf(182.385), 3),
-            arguments(LocalDate.of(2020, 1, 2), LocalDate.of(2020, 1, 15),
-                    AggregationType.DAILY, BigDecimal.valueOf(1.5), 18.22, BigDecimal.valueOf(27.330), 14)
+            arguments(LocalDate.of(2020, 1, 1),
+                    AggregationType.MONTHLY, BigDecimal.valueOf(1.5), 325.96, BigDecimal.valueOf(488.94), 14),
+            arguments(LocalDate.of(2020, 1, 6),
+                    AggregationType.WEEKLY, BigDecimal.valueOf(1.5), 121.59, BigDecimal.valueOf(182.385), 58),
+            arguments(LocalDate.of(2020, 1, 2),
+                    AggregationType.DAILY, BigDecimal.valueOf(1.5), 18.22, BigDecimal.valueOf(27.330), 400)
 
     );
   }
@@ -85,7 +86,7 @@ class ReportControllerTest {
   @AfterEach
   void tearDown() {
     wireMockServer.resetAll();
-    Optional.ofNullable(cacheManager.getCache("energyReport")).ifPresent(Cache::clear);
+    Optional.ofNullable(cacheManager.getCache(ELECTRIC_USAGE_CACHE_NAME)).ifPresent(Cache::clear);
   }
 
   @Test
@@ -122,8 +123,7 @@ class ReportControllerTest {
   @ParameterizedTest
   @MethodSource("calculationData")
   void getReportCheckPriceCalculated(
-          LocalDate startDate,
-          LocalDate endDate,
+          LocalDate date,
           AggregationType aggregationType,
           BigDecimal price,
           Double usage,
@@ -135,9 +135,6 @@ class ReportControllerTest {
                     .withBodyFile("json/okResponse.xml")));
 
     Report report = given().port(port).log().all()
-            .param("startDate", startDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
-            .param("endDate", endDate.format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
-            .param("aggregation", aggregationType)
             .param("price", price)
             .when()
             .get("/report")
@@ -145,15 +142,15 @@ class ReportControllerTest {
             .statusCode(200)
             .extract().as(Report.class);
 
-    Consumption consumption = report.getConsumptionHistory().stream()
-            .filter(it -> it.getTimeStamp().isEqual(startDate.atStartOfDay()))
+    Consumption consumption = report.getConsumptionHistory().get(aggregationType).stream()
+            .filter(it -> it.getTimeStamp().isEqual(date.atStartOfDay()))
             .findFirst().orElse(new Consumption());
 
     assertThat(consumption).isEqualToComparingOnlyGivenFields(new Consumption()
-            .setTimeStamp(startDate.atStartOfDay())
+            .setTimeStamp(date.atStartOfDay())
             .setConsumption(usage), "timeStamp", "consumption");
     assertThat(consumption.getCost()).isEqualByComparingTo(cost);
-    assertThat(report.getConsumptionHistory().size()).isEqualTo(size);
+    assertThat(report.getConsumptionHistory().get(aggregationType).size()).isEqualTo(size);
   }
 
   @Test

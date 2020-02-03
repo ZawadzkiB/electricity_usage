@@ -7,7 +7,7 @@ export const actions: ActionTree<AppState, RootState> = {
   async getHistoryData({ commit, state }) {
     commit("dataLoad", true);
     await CLIENT.get(
-      `/report?startDate=${state.requestData.startDate}&endDate=${state.requestData.endDate}&aggregation=${state.requestData.aggregation}&price=${state.requestData.price}`
+      `/report?price=${state.requestData.price}`
     ).then(
       response => {
         Vue.toasted.show("Loaded new data", {
@@ -28,7 +28,7 @@ export const actions: ActionTree<AppState, RootState> = {
   switchView({ commit }) {
     commit("changeView");
   },
-  clearErrors({ commit }) {
-    commit("clearValidationErrors");
+  chartUpdate({ commit }) {
+    commit("chartUpdate");
   }
 };
