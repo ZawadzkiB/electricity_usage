@@ -1,0 +1,16 @@
+version: "3.6"
+
+services:
+  backend:
+    image: recruitment_backend:0.1
+    build: ./electricity-backend
+    ports:
+      - 8081:8081
+
+  frontend:
+    image: recruitment_frontend:0.1
+    build: ./electricity-front
+    environment:
+      - env=docker
+    ports:
+      - 80:8080
