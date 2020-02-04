@@ -2,7 +2,7 @@ version: "3.6"
 
 services:
   backend:
-    image: zawadzkib/recruitment_backend:0.2
+    image: zawadzkib/recruitment_backend:0.2.1
     ports:
       - 8081:8081
 

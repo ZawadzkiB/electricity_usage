@@ -15,7 +15,9 @@ backend: ``docker build ./electricity-backend -t recruitment_backend:{tag_versio
 
 there are also images already stored on docker hub under
 
-`zawadzkib/recruitment_frontend`
+https://hub.docker.com/repository/docker/zawadzkib/recruitment_backend
+
+https://hub.docker.com/repository/docker/zawadzkib/recruitment_frontend
 
 so to run `0.1` version just use `docker pull` or there is possibility to use docker-compose.
 

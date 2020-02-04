@@ -56,7 +56,7 @@ public class ReportCreator {
                             agr.aggregate(
                                     data.getUsages().stream()
                                             .filter(it -> it.getTimestamp().isAfter(Optional.ofNullable(startDate).orElse(LocalDate.now().minusYears(2).atStartOfDay().minusHours(1))))
-                                            .filter(it -> it.getTimestamp().isBefore(Optional.ofNullable(endDate).orElse(LocalDate.now().atStartOfDay().plusHours(25))))
+                                            .filter(it -> it.getTimestamp().isBefore(Optional.ofNullable(endDate).orElse(LocalDate.now().atStartOfDay().plusHours(24))))
                                             .map(it -> new Consumption().setConsumption(it.getUsage()).setTimeStamp(it.getTimestamp()))
                                             .collect(Collectors.toList()), aggregateFunction), reportRequest))
     );
