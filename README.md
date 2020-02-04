@@ -7,6 +7,7 @@ to build new image:
 
 
 frontend: ``docker build ./electricity-frontend -t recruitment_frontend:{tag_version}``
+
 backend: ``docker build ./electricity-backend -t recruitment_backend:{tag_version}``
 
 #### Run docker images
@@ -18,6 +19,7 @@ https://hub.docker.com/repository/docker/zawadzkib/recruitment_backend
 https://hub.docker.com/repository/docker/zawadzkib/recruitment_frontend
 
 so to run `0.2.1` version just use `docker pull` or there is possibility 
+
 to use prepared docker-compose, yml file prepared already so just run ``docker-compose up`` to start the app.
 
 
