@@ -7,7 +7,7 @@ services:
       - 8081:8081
 
   frontend:
-    image: zawadzkib/recruitment_frontend:0.2
+    image: zawadzkib/recruitment_frontend:0.2.1
     environment:
       - env=docker
     ports:
