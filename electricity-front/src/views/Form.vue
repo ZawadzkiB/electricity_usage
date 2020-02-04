@@ -109,8 +109,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Action, State } from "vuex-class";
 import { AppState, RequestData } from "@/store/store";
-import format from "date-fns/format";
-import { addDays, subDays, subYears } from "date-fns";
+import moment from "moment";
 
 @Component
 export default class Form extends Vue {
@@ -141,13 +140,17 @@ export default class Form extends Vue {
     this.dateRule = {
       rules: [
         (value: any) =>
-          new Date(value) < new Date() || "Date cant be from future.",
+          moment(value).isBefore(moment(new Date()).add(1, "hour")) ||
+          "Date cant be from future.",
         (value: any) =>
-          new Date(value) > subDays(subYears(new Date(), 2), 1) ||
-          `Date cant be older than ${subDays(
-            subYears(new Date(), 2),
-            1
-          ).toDateString()}.`
+          moment(value).isAfter(
+            moment(new Date())
+              .subtract(2, "year")
+              .subtract(1, "day")
+          ) ||
+          `Date cant be older than ${moment(new Date())
+            .subtract(2, "year")
+            .subtract(1, "day")}.`
       ]
     };
   }
@@ -167,6 +170,16 @@ export default class Form extends Vue {
 
   submitData() {
     if (this.appState) {
+      if (!this.appState.requestData.endDate) {
+        this.appState.requestData.endDate = moment(new Date()).format(
+          "YYYY-MM-DD"
+        );
+      }
+      if (!this.appState.requestData.startDate) {
+        this.appState.requestData.startDate = moment(new Date())
+          .subtract(2, "year")
+          .format("YYYY-MM-DD");
+      }
       if (!validate(this.appState.requestData)) {
         return;
       }
@@ -177,23 +190,22 @@ export default class Form extends Vue {
 
 export const validate = (requestData: RequestData) => {
   if (requestData) {
-    if (!requestData.endDate) {
-      requestData.endDate = format(new Date(), "yyyy-MM-dd");
-    }
-    if (!requestData.startDate) {
-      requestData.startDate = format(subYears(new Date(), 2), "yyyy-MM-dd");
-    }
     if (new Date(requestData.startDate) > new Date(requestData.endDate)) {
       showError("Start date cannot be greater than end date.");
       return false;
     }
-    if (new Date(requestData.startDate) > new Date()) {
+    if (moment(requestData.startDate) > moment(new Date()).add(1, "day")) {
       return false;
     }
-    if (new Date(requestData.endDate) > addDays(new Date(), 1)) {
+    if (moment(requestData.endDate) > moment(new Date()).add(1, "day")) {
       return false;
     }
-    if (new Date(requestData.startDate) < subDays(subYears(new Date(), 2), 1)) {
+    if (
+      moment(requestData.startDate) <
+      moment(new Date())
+        .subtract(2, "year")
+        .subtract(1, "day")
+    ) {
       return false;
     }
     if (isNaN(requestData.price)) {

@@ -24,11 +24,9 @@ export const filterDates = (
 ) => {
   return consumptions.filter(
     c =>
-      moment(c.timeStamp).isBefore(
-        moment(requestData.endDate).add(1, "days")
-      ) &&
+      moment(c.timeStamp).isBefore(moment(requestData.endDate).add(1, "day")) &&
       moment(c.timeStamp).isAfter(
-        moment(requestData.startDate).subtract(1, "days")
+        moment(requestData.startDate).subtract(1, "day")
       )
   );
 };

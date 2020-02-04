@@ -9,7 +9,7 @@
       absolute
       top
       right
-      class="mr-4 mt-10"
+      class="noFocus mr-4 mt-10"
       @click="switchToView()"
     >
       <v-icon v-if="!appState.nav.view">show_chart</v-icon>
@@ -19,6 +19,12 @@
     <Chart :height="this.height" v-else></Chart>
   </div>
 </template>
+
+<style scoped>
+.noFocus:focus {
+  outline: none;
+}
+</style>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";

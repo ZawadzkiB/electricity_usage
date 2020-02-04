@@ -6,9 +6,7 @@ import Vue from "vue";
 export const actions: ActionTree<AppState, RootState> = {
   async getHistoryData({ commit, state }) {
     commit("dataLoad", true);
-    await CLIENT.get(
-      `/report?price=${state.requestData.price}`
-    ).then(
+    await CLIENT.get(`/report?price=${state.requestData.price}`).then(
       response => {
         Vue.toasted.show("Loaded new data", {
           position: "bottom-left",
@@ -18,6 +16,7 @@ export const actions: ActionTree<AppState, RootState> = {
         });
         commit("setHistoryData", response.data);
         commit("dataLoad", false);
+        commit("chartUpdate");
       },
       error => {
         SHOW_ERROR(error);

@@ -17,7 +17,7 @@ public class ReportRequestValidator extends Validator<ReportRequest> {
   @Override
   public void validate(ReportRequest reportRequest, List<ValidateError> errors) {
     if (Optional.ofNullable(reportRequest.getPrice()).isEmpty()) {
-      errors.add(new ValidateError("endDate", "startDate after endDate"));
+      errors.add(new ValidateError("price", "price can't be empty"));
     }
   }
 }

@@ -1,6 +1,6 @@
 package com.example.electricity.report;
 
-import com.example.electricity.provider.ElectricityUsageProvider;
+import com.example.electricity.provider.UsageProvider;
 import com.example.electricity.provider.model.ElectricityUsageData;
 import com.example.electricity.report.aggregations.Aggregates;
 import com.example.electricity.report.aggregations.AggregationType;
@@ -24,14 +24,14 @@ import java.util.stream.Collectors;
 @Component
 public class ReportCreator {
 
-  private final ElectricityUsageProvider client;
+  private final UsageProvider client;
   private final Set<Aggregates> aggregates;
   private final AggregateFunction aggregateFunction;
 
   private LocalDateTime startDate;
   private LocalDateTime endDate;
 
-  public ReportCreator(ElectricityUsageProvider client,
+  public ReportCreator(UsageProvider client,
                        Set<Aggregates> aggregates,
                        @Qualifier("sum") AggregateFunction aggregateFunction) {
     this.client = client;

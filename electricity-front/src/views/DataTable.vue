@@ -54,12 +54,12 @@ export default class DocumentsContent extends Vue {
       {
         value: "consumption",
         text: "Usage",
-        sortable: false
+        sortable: true
       },
       {
         value: "cost",
         text: "Cost",
-        sortable: false
+        sortable: true
       }
     ];
   }

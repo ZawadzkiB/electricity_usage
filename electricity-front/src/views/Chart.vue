@@ -3,7 +3,7 @@ import { Line } from "vue-chartjs-typescript";
 import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import { Getter, State } from "vuex-class";
-import { AppState, Consumption, HistoryData } from "@/store/store";
+import { AppState, Consumption } from "@/store/store";
 
 @Component({
   extends: Line
@@ -22,8 +22,15 @@ export default class Chart extends Vue {
         {
           label: "Electricity usage",
           data: [],
-          backgroundColor: "rgb(171,205,255)",
+          backgroundColor: "rgba(171,205,255, 0)",
           borderColor: "rgb(2,4,255)",
+          borderWidth: 1
+        },
+        {
+          label: "Electricity usage cost",
+          data: [],
+          backgroundColor: "rgba(255,135,134, 0)",
+          borderColor: "rgb(255,0,27)",
           borderWidth: 1
         }
       ]
@@ -78,6 +85,10 @@ export default class Chart extends Vue {
 
     this.chartData.datasets[0].data = this.getHistoryDataFromState.map(
       (c: Consumption) => c.consumption
+    );
+
+    this.chartData.datasets[1].data = this.getHistoryDataFromState.map(
+      (c: Consumption) => c.cost
     );
 
     try {

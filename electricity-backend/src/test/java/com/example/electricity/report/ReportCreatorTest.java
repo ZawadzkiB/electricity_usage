@@ -1,6 +1,6 @@
 package com.example.electricity.report;
 
-import com.example.electricity.provider.ElectricityUsageProvider;
+import com.example.electricity.provider.UsageProvider;
 import com.example.electricity.provider.model.ElectricityUsage;
 import com.example.electricity.provider.model.ElectricityUsageData;
 import com.example.electricity.report.aggregations.AggregationType;
@@ -26,7 +26,7 @@ class ReportCreatorTest {
   ReportCreator reportCreator;
 
   @MockBean
-  ElectricityUsageProvider client;
+  UsageProvider client;
 
   private ElectricityUsageData electricityUsage;
   private ReportRequest reportRequest;
