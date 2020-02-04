@@ -17,7 +17,7 @@ there are also images already stored on docker hub under
 
 `zawadzkib/recruitment_frontend`
 
-so to run `0.1` version just use `docker pull` or there is possibility to use docker-compose.
+so to run `0.2` version just use `docker pull` or there is possibility to use docker-compose.
 
 there is docker-compose yml file prepared already so just run ``docker-compose up`` to start the app.
 
